@@ -14,7 +14,6 @@ case class Sign(sign: Operator) extends Token
 case class Bool(str: String) extends Token
 case object EMPTY extends Token
 case object NULL extends Token
-case class MethodList(exp: Any, list: List[Any]) extends Token
 case class Factor(factor: Any) extends Token
 case class Term(term: Any, term2: Any) extends Token
 case class Exp(term: Any, exp: Any = None) extends Token
@@ -60,8 +59,8 @@ class MyParser extends RegexParsers {
   def bool: Parser[Bool] = ("true" | "false") ^^ { b => Bool(b) }
   def sign: Parser[Sign] = ("+" | "-") ^^ { op => Sign(Operator(op)) }
 
-  def int: Parser[Integer] = ("[0-9]+".r).+ ^^ { int => Integer(concat(int)) }
-  def word: Parser[Word] = ("[a-zA-Z]{1}".r).+ ^^ { word => Word(concat(word))}
+  def int: Parser[Integer] = "[0-9]+".r.+ ^^ { int => Integer(concat(int)) }
+  def word: Parser[Word] = "[a-zA-Z]{1}".r.+ ^^ { word => Word(concat(word))}
 
   def forbidden = not(bool) ~ not(reserved)
   def id: Parser[Id] = (forbidden ~> "[a-zA-Z]{1}".r ~ rep(forbidden ~> "[a-zA-Z]{1}".r | "[0-9]+".r)) ^^ {
@@ -78,18 +77,19 @@ class MyParser extends RegexParsers {
     case f => Factor(f)
   }
 
-  def term: Parser[Term] =
+  def term: Parser[Any] =
     (factor
       | list
       | Null
       | empty
       | bool
       | int
-      | word) ^^ {
+      | ("'" ~> word <~ "'")) ^^ {
       case NULL => Term(NULL, None)
       case EMPTY => Term(EMPTY, None)
       case Bool(b) => Term(Bool(b), None)
-      case Integer(i) => Term(Integer(i), None)
+      case Integer(i) => Integer(i)
+      case Word(w) => Term(Word(w), None)
       case Factor(f) ~ _ ~ _ => Term(Factor(f), ())
       case Factor(f) ~ Nil => Term(Factor(f), None)
       case Factor(f) ~ list => Term(Factor(f), list)
@@ -98,14 +98,29 @@ class MyParser extends RegexParsers {
 
   def list: Parser[Any] = "[" ~ ((word ~ rep("," ~> word)) | (int ~ rep("," ~> int))) ~ "]" ^^ { case x => x}
 
-  def exp: Parser[Any] = (("test" ~ "method" ~ id ~ "(" ~> term <~ ")")
+  def exp: Parser[Any] = (("test" ~ "method" ~ id ~ "(" ~ term ~ ")")
   | ("create" ~ "void" ~ "tester" ~ id ~ "(" ~ ")")
   | ("execute" ~ id ~ "(" ~ ")")
   | ("testAll" ~ "(" ~ ")")) ^^ {
     case "test" ~ "method" ~ id ~ _ ~ term ~ _ => {
+
+      val mtdname = id.toString.substring(3, id.toString.length - 1)
+      val param = term.toString.substring(8, term.toString.length - 1)
+
+      val a = new A
+      implicit def anyref2callable[T>:Null<:AnyRef](klass:T):Caller[T]= new Caller(klass)
       println("Expected Output: ")
       val inp = StdIn.readLine()
-      println("Correct! The method '"+id+"' returned '"+inp+ "'" ) }
+      println("Your output:")
+      val yrout = a call(mtdname, param)
+
+      if(inp == yrout.toString){
+        println("Correct! The method '"+ mtdname +"' returned '"+inp+ "'" )
+      } else{
+        println("Incorrect! The output of '"+mtdname+"' was not as expected")
+      }
+
+       }
   }
 
   def concat(xs: List[String]): String = {
@@ -127,6 +142,24 @@ class MyParser extends RegexParsers {
   }
 }
 
+case class Caller[T>:Null<:AnyRef](klass:T) {
+  def call(methodName:String,args:AnyRef*):AnyRef = {
+    def argtypes = args.map(_.getClass)
+    def method = klass.getClass.getMethod(methodName, argtypes: _*)
+    method.invoke(klass,args: _*)
+  }
+}
+
+
+class A{
+  def addInt( a:String ) : Int = {
+    var sum:Int = 0
+    sum = a.toInt + 5
+    println(sum)
+    return sum
+  }
+}
+
 object console extends MyParser {
 
   val parser = new MyParser
@@ -145,15 +178,9 @@ object console extends MyParser {
         if (cmmd == "q" || cmmd == "'q'") {
           more = false
         }
-        /*else if (cmmd == "code" || cmmd == "'code'") {
-          val output = parser.parseAll(parser.exp, cmmd)
-          println("Custom code parsed successfully!")
-          println(output)
-        }*/
         else {
-          //val output = parser.parse(cmmd)(parser.exp)
+
           val output = parser.parseAll(parser.exp, cmmd)
-          println("Code parsed successfully!")
           println(output)
         }
       } catch {

@@ -1,3 +1,5 @@
+package src
+
 class TestingTools {
   def rand_list(n : Int) = {
     val r = new scala.util.Random

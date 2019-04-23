@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaProjectSettings">
+    <option name="groupPackageObjectWithPackage" value="true" />
+    <option name="intInjectionMapping">
+      <map>
+        <entry key="xml" value="XML" />
+      </map>
+    </option>
+    <option name="useEclipseCompatibility" value="true" />
+  </component>
+  <component name="WorksheetDefaultProjectSettings">
+    <option name="compilerProfileName" value="Default" />
+    <option name="interactive" value="true" />
+    <option name="makeBeforeRun" value="true" />
+    <option name="moduleName" value="TestIt" />
+  </component>
+</project>

@@ -1,13 +1,14 @@
+package src
+
 class MyCases {
 
-  def addInt(a : String, n : Int) : Int = {
+  def addInt(a : String, n : Int) : Unit = {
     var sum : Int = 0
     sum = a.toInt + n
     println(sum)
-    return sum
   }
 
-  def sayHi(i: String) = {
+  def sayHi(i: String) : Unit = {
     println(i)
   }
 
@@ -17,9 +18,9 @@ class MyCases {
     else fibo(n - 1) + fibo(n - 2)
   }
 
-  def sortDecreasing(list: List[Int]) = {
+  def sortDecreasing(list: List[Int]) : List[Int] = {
     list.sorted
-    list.reverse
+    return list.reverse
   }
 
   def multiply (list: List[Int]) : Int = {

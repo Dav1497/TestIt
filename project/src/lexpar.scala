@@ -1,8 +1,13 @@
+import java.io
+
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.CharSequenceReader
 import scala.io._
-import java.io.File
-import java.io.PrintWriter
+import java.io.{File, PrintWriter}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.util.matching.Regex
+
 
 //import scala.sys.process.processInternal.File
 
@@ -15,6 +20,10 @@ case class Operator(str: String) extends Token
 case class Delimiter(str: String) extends Token
 case class Sign(sign: Operator) extends Token
 case class Bool(str: String) extends Token
+case class Proplist(listed: Any, list: List[Any]) extends Token
+case class Mylist(list: Any) extends Token
+case class PropParamlist(plisted: Any, list: List[Any]) extends Token
+case class ParamList(plist: Any) extends Token
 case object EMPTY extends Token
 case object NULL extends Token
 case class Factor(factor: Any) extends Token
@@ -62,8 +71,27 @@ class MyParser extends RegexParsers {
   def bool: Parser[Bool] = ("true" | "false") ^^ { b => Bool(b) }
   def sign: Parser[Sign] = ("+" | "-") ^^ { op => Sign(Operator(op)) }
 
+
   def int: Parser[Integer] = "[0-9]+".r.+ ^^ { int => Integer(concat(int)) }
   def word: Parser[Word] = "[a-zA-Z]{1}".r.+ ^^ { word => Word(concat(word))}
+
+  def proplist: Parser[Any] = (word ~ rep("," ~> word)) | (int ~ rep("," ~> int)) ^^ {
+    case id ~ Nil => id
+    case id ~ list => Proplist(id, list)
+  }
+  def mylist: Parser[Any] = rep(proplist) ^^ {
+    case Nil => Mylist(())
+    case p => Mylist(p)
+  }
+
+  def propparamlist: Parser[Any] = (term ~ rep("," ~> term)) ^^ {
+    case t ~ Nil => t
+    case t ~ list => Proplist(t, list)
+  }
+  def plist: Parser[Any] = rep(propparamlist) ^^ {
+    case Nil => Mylist(())
+    case p => Mylist(p)
+  }
 
   def forbidden = not(bool) ~ not(reserved)
   def id: Parser[Id] = (forbidden ~> "[a-zA-Z]{1}".r ~ rep(forbidden ~> "[a-zA-Z]{1}".r | "[0-9]+".r)) ^^ {
@@ -81,8 +109,8 @@ class MyParser extends RegexParsers {
   }
 
   def term: Parser[Any] =
-    (factor
-      | list
+    ( "[" ~ mylist ~ "]"
+      | (sign ~ int)
       | Null
       | empty
       | bool
@@ -90,62 +118,153 @@ class MyParser extends RegexParsers {
       | ("'" ~> word <~ "'")) ^^ {
       case NULL => Term(NULL, None)
       case EMPTY => Term(EMPTY, None)
-      case Bool(b) => Term(Bool(b), None)
+      case Bool(b) => Bool(b)
+      case Operator(x)~ Integer(i) => Term(Operator(x), Integer(i))
       case Integer(i) => Integer(i)
-      case Word(w) => Term(Word(w), None)
-      case Factor(f) ~ _ ~ _ => Term(Factor(f), ())
-      case Factor(f) ~ Nil => Term(Factor(f), None)
-      case Factor(f) ~ list => Term(Factor(f), list)
+      case Word(w) => Word(w)
+      case "[" ~ Mylist(x) ~ "]" => Mylist(x)
     }
 
 
-  def list: Parser[Any] = "[" ~ ((word ~ rep("," ~> word)) | (int ~ rep("," ~> int))) ~ "]" ^^ { case x => x}
 
   //metodo para hacer files
   def createFile(name: String) = {
 
     val completePath = name +".txt"
-
     //val file = new File(completePath)
     //file.createNewFile();
     println(completePath)
     val mahFile = new File(completePath)
-
     val pw = new PrintWriter(mahFile)
-
 
   }
 
+  def usrInput(mtdname:String, param:AnyRef): Unit ={
+    val myClass = new MyCases
+    implicit def anyref2callable[T>:Null<:AnyRef](klass:T):Caller[T]= new Caller(klass)
+    println("Your output:")
+
+    val yrout = {
+      myClass call (mtdname, param)
+      //myClass call(mtdname, param)
+    }
+
+    println(yrout.toString)
+
+    if(param==(yrout.toString)){
+      println("Correct! The method '"+ mtdname +"' returned '"+ param + "'" )
+    } else{
+      println("Incorrect! The output of '"+ mtdname +"' was not as expected")
+    }
+  }
+
+  def paramMatch(ptype: String, param: String): AnyRef = {
+    if (ptype.contentEquals("class scala.runtime.IntRef") | ptype.contentEquals("int")){
+      return param.toInt
+    }
+    else if (ptype.contentEquals("class scala.collection.immutable.List")){
+      return param.toList
+    }
+    else if (ptype.contentEquals("class Bool")){
+      return param.toBoolean
+    }
+    else{
+      return param
+    }
+  }
+
+  def getParam(str: String): String = {
+    val first = str.indexOf("(") + 1
+    val last = str.indexOf(")")
+
+    return str.substring(first, last)
+  }
+
+  def getIntList(str: String): List[Int] = {
+    val pattern = new Regex("[0-9]+")
+    val arr = (pattern findAllIn str).toList
+
+    val intArr = new ArrayBuffer[Int]()
+    for(x <- arr){
+      intArr.+=(x.toInt)
+    }
+
+    println(intArr.toList)
+    return intArr.toList
+
+  }
+
+
+  def customParList(str: String): List[String] = {
+
+    //val pattern = new Regex("[a-zA-Z]+")
+    val a1 = str.trim.split(",")
+    for(b <- a1){
+      b.trim()
+    }
+    return a1.toList
+
+    // val arr = (pattern findAllIn str).toList
+    //return arr
+  }
+
   def exp: Parser[Any] = (("test" ~ "method" ~ id ~ "(" ~ term ~ ")")
+    | ("test" ~ "method" ~ id ~ "(" ~ plist ~ ")")
     | ("create" ~ "void" ~ "tester" ~ id ~ "(" ~ ")")
     | ("execute" ~ id ~ "(" ~ ")")
     | ("testAll" ~ "(" ~ ")")) ^^ {
-    case "test" ~ "method" ~ id ~ _ ~ term ~ _ => {
+
+    case "test" ~ "method" ~ id ~ "(" ~ term ~ ")" => {
 
       val mtdname = id.toString.substring(3, id.toString.length - 1)
-      val param = term.toString.substring(8, term.toString.length - 1)
 
-      val myClass = new A
-      implicit def anyref2callable[T>:Null<:AnyRef](klass:T):Caller[T]= new Caller(klass)
-      println("Expected Output: ")
-      val inp = StdIn.readLine()
-      println("Your output:")
-      val yrout = myClass call(mtdname, param)
+      if(term.toString.contains("List")){
+        println(term.toString)
+        if (term.toString.contains("Integer")){
+          val param = getIntList(term.toString)
+          usrInput(mtdname, param)
+        }
+        else{
 
-      if(inp == yrout.toString){
-        println("Correct! The method '"+ mtdname +"' returned '"+ inp + "'" )
-      } else{
-        println("Incorrect! The output of '"+ mtdname +"' was not as expected")
+        }
+      }
+      else{
+        val param = getParam(term.toString)
+
+        println(param)
+        usrInput(mtdname, param)
       }
 
+
     }
+
     case "create" ~ "void" ~ "tester" ~ id ~ "(" ~ ")" => {
       val fileName = id.toString.substring(3, id.toString.length - 1)
       createFile(fileName)
     }
+
     case "testAll" ~ "(" ~ ")" =>{
       val myClasssss = new MyCases
-      myClasssss.sayHi("holis bitch")
+      val allMetd = myClasssss.getClass.getDeclaredMethods
+      for (i <- allMetd){
+
+        try{
+          if (i.getName != "$deserializeLambda$" && i.getName != "$anonfun$multiply$1") {
+            println("Method: " + i.getName)
+            val m = i.getParameterTypes.toString
+
+            println("Specify parameters: ")
+            val x = StdIn.readLine()
+
+            val ptr = paramMatch(m, x)
+            usrInput(i.getName, ptr)
+          }
+        }catch  {
+          case e: Exception => println("Error with method")
+        }
+        println()
+
+      }
       println("Enter")
     }
   }
@@ -172,20 +291,14 @@ class MyParser extends RegexParsers {
 case class Caller[T>:Null<:AnyRef](klass:T) {
   def call(methodName:String,args:AnyRef*):AnyRef = {
     def argtypes = args.map(_.getClass)
+
     def method = klass.getClass.getMethod(methodName, argtypes: _*)
-    method.invoke(klass,args: _*)
+
+    method.invoke(klass, args: _*)
   }
 }
 
 
-class A{
-  def addInt( a:String ) : Int = {
-    var sum:Int = 0
-    sum = a.toInt + 5
-    println(sum)
-    return sum
-  }
-}
 
 object console extends MyParser {
 
@@ -195,6 +308,8 @@ object console extends MyParser {
     var more = true
     println("Welcome to TestIt! a unit tester for scala")
     println("Type 'q' to quit program")
+
+
 
     while (more) {
       try {
@@ -226,11 +341,22 @@ object console extends MyParser {
 
 class MyCases {
 
-  def addInt(a : String, n : Int) : Unit = {
+  def add5Int( a:String ) : Int = {
+    var sum:Int = 0
+    sum = a.toInt + 5
+    println(sum)
+    return sum
+  }
+
+  def isTrue(c: Bool):Boolean = {
+    return false
+  }
+
+  /*def addInt(a : String, n : Int) : Unit = {
     var sum : Int = 0
     sum = a.toInt + n
     println(sum)
-  }
+  }*/
 
   def sayHi(i: String) : Unit = {
     println(i)
@@ -249,25 +375,11 @@ class MyCases {
 
   def multiply (list: List[Int]) : Int = {
     var product = 1
-    list.foreach(product *= _)
+    list.foreach(product *=_)
     return product
   }
 
 
-  addInt("1", 2)
-
-  sayHi("Hello World!")
-
-  var i = 0
-  while (i < 11) {
-    println("Fibonacci: " + i + " = " + fibo(i))
-    i += 1
-  }
-
-  var toDo: List[Int] = List(1, 9, 33, 24)
-  println(sortDecreasing(toDo))
-
-  println(multiply(toDo))
 }
 
 //-----------------------------------------------------------------------------------------------------------

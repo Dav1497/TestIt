@@ -1,6 +1,7 @@
 package src
 
 class TestingTools {
+
   def rand_list(n : Int) = {
     val r = new scala.util.Random
     1 to n map { _ => r.nextInt(100) }

@@ -351,7 +351,6 @@ class MyCases {
   def add5Int( a:String ) : Int = {
     var sum:Int = 0
     sum = a.toInt + 5
-    println(sum)
     return sum
   }
 
@@ -365,14 +364,15 @@ class MyCases {
     println(sum)
   }*/
 
-  def sayHi(i: String) : Unit = {
-    println(i)
+  def sayHi(i: String) : String = {
+    return i
   }
 
-  def fibo(n: Int): Int = {
+  def fibo(s: String): Int = {
+    val n : Int = s.toInt
     if (n == 0) return 0
     else if (n == 1) return 1
-    else fibo(n - 1) + fibo(n - 2)
+    else fibo((n - 1).toString) + fibo((n - 2).toString)
   }
 
   def sortDecreasing(list: List[Int]) : List[Int] = {
@@ -386,6 +386,26 @@ class MyCases {
     return product
   }
 
+  def concatenation(s1 : String) : String = {
+    val r = s1.concat(" Friend")
+    return r
+  }
+
+  def revStr(s : String) : String = {
+    return  s.reverse
+  }
+
+  def firstCharInStr(s : String) : Char = {
+    return  s.charAt(0)
+  }
+
+  def upStr(s : String) : String = {
+    return  s.toUpperCase
+  }
+
+  def isEmptyStr(s : String) : Boolean = {
+    return  s.isEmpty
+  }
 
 }
 

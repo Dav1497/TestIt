@@ -75,7 +75,7 @@ class MyParser extends RegexParsers {
   def int: Parser[Integer] = "[0-9]+".r.+ ^^ { int => Integer(concat(int)) }
   def word: Parser[Word] = "[a-zA-Z]{1}".r.+ ^^ { word => Word(concat(word))}
 
-  def proplist: Parser[Any] = (word ~ rep("," ~> word)) | (int ~ rep("," ~> int)) ^^ {
+  def proplist: Parser[Any] = ("'" ~ word ~ "'" ~ rep("," ~> "'" ~ word ~ "'")) | (int ~ rep("," ~> int)) ^^ {
     case id ~ Nil => id
     case id ~ list => Proplist(id, list)
   }
@@ -169,7 +169,9 @@ class MyParser extends RegexParsers {
       return param
     }
     else if (ptype.contentEquals("class scala.collection.immutable.List")){
+      println(param.toList.toString())
       return param.toList
+
     }
     else if (ptype.contentEquals("class Bool")){
       return param
@@ -197,8 +199,27 @@ class MyParser extends RegexParsers {
 
     println(intArr.toList)
     return intArr.toList
-
   }
+
+  def getStrList(str:String):List[String] = {
+    val notAllowd = List("Word", "List", "Mylist")
+
+    val pattern = "[a-zA-Z]+".r
+
+    val arr = pattern.findAllMatchIn(str)
+
+    val strArr = new ArrayBuffer[String]()
+    for(x <- arr){
+      if (notAllowd.contains(x.toString())){}
+      else{
+        strArr.+=(x.toString)
+      }
+    }
+    println(strArr.toList)
+    return strArr.toList
+  }
+
+
 
 
   def customParList(str: String): List[String] = {
@@ -231,7 +252,8 @@ class MyParser extends RegexParsers {
           usrInput(mtdname, param)
         }
         else{
-
+          val pstr = getStrList(term.toString)
+          usrInput(mtdname, pstr)
         }
       }
       else{
@@ -381,7 +403,7 @@ class MyCases {
     else fibo((n - 1).toString) + fibo((n - 2).toString)
   }
 
-  def sortDecreasing(list: List[Int]) : List[Int] = {
+  def sortDecreasing(list: List[String]) : List[String] = {
     list.sorted
     return list.reverse
   }

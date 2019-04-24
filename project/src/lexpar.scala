@@ -160,13 +160,13 @@ class MyParser extends RegexParsers {
 
   def paramMatch(ptype: String, param: String): AnyRef = {
     if (ptype.contentEquals("class scala.runtime.IntRef") | ptype.contentEquals("int")){
-      return param.toInt
+      return param
     }
     else if (ptype.contentEquals("class scala.collection.immutable.List")){
       return param.toList
     }
     else if (ptype.contentEquals("class Bool")){
-      return param.toBoolean
+      return param
     }
     else{
       return param
@@ -238,10 +238,17 @@ class MyParser extends RegexParsers {
 
     }
 
+    case "execute" ~ id ~ "(" ~ ")" => {
+      val fileName = id.toString.substring(3, id.toString.length - 1)
+      val fileContents = Source.fromFile(fileName + ".txt").getLines.mkString
+      println(fileContents)
+    }
+
     case "create" ~ "void" ~ "tester" ~ id ~ "(" ~ ")" => {
       val fileName = id.toString.substring(3, id.toString.length - 1)
       createFile(fileName)
     }
+
 
     case "testAll" ~ "(" ~ ")" =>{
       val myClasssss = new MyCases

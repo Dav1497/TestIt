@@ -142,6 +142,11 @@ class MyParser extends RegexParsers {
   def usrInput(mtdname:String, param:AnyRef): Unit ={
     val myClass = new MyCases
     implicit def anyref2callable[T>:Null<:AnyRef](klass:T):Caller[T]= new Caller(klass)
+
+
+    println("Expected output:")
+    val x = StdIn.readLine()
+
     println("Your output:")
 
     val yrout = {
@@ -149,9 +154,10 @@ class MyParser extends RegexParsers {
       //myClass call(mtdname, param)
     }
 
+
     println(yrout.toString)
 
-    if(param==(yrout.toString)){
+    if(x==(yrout.toString)){
       println("Correct! The method '"+ mtdname +"' returned '"+ param + "'" )
     } else{
       println("Incorrect! The output of '"+ mtdname +"' was not as expected")
@@ -378,12 +384,6 @@ class MyCases {
   def sortDecreasing(list: List[Int]) : List[Int] = {
     list.sorted
     return list.reverse
-  }
-
-  def multiply (list: List[Int]) : Int = {
-    var product = 1
-    list.foreach(product *=_)
-    return product
   }
 
   def concatenation(s1 : String) : String = {

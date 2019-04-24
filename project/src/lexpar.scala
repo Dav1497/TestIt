@@ -157,7 +157,7 @@ class MyParser extends RegexParsers {
 
     println(yrout.toString)
 
-    if(param==(yrout.toString)){
+    if(x==(yrout.toString)){
       println("Correct! The method '"+ mtdname +"' returned '"+ param + "'" )
     } else{
       println("Incorrect! The output of '"+ mtdname +"' was not as expected")
@@ -407,7 +407,6 @@ class MyCases {
     list.sorted
     return list.reverse
   }
-
 
   def concatenation(s1 : String) : String = {
     val r = s1.concat(" Friend")

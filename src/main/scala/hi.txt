@@ -1,0 +1,4 @@
+hi():
+multiply([1,2,3])
+true if (this < 7)
+else false

@@ -1,5 +1,3 @@
-package src
-
 class TestingTools {
 
   def rand_list(n : Int) = {

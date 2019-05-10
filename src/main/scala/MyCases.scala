@@ -1,17 +1,15 @@
-package src
-
-import com.sun.org.apache.xpath.internal.operations.Bool
+import scala.collection.mutable.ArrayBuffer
 
 class MyCases {
 
   def add5Int( a:String ) : Int = {
     var sum:Int = 0
     sum = a.toInt + 5
-    return sum
+    sum
   }
 
   def isTrue(c: Bool):Boolean = {
-    return false
+     false
   }
 
   /*def addInt(a : String, n : Int) : Unit = {
@@ -21,22 +19,22 @@ class MyCases {
   }*/
 
   def sayHi(i: String) : String = {
-    return i
+     i
   }
 
-  def fibo(s: String): Int = {
-    val n : Int = s.toInt
+  def fibo(n: Int): Int = {
+    //val n : Int = s.toInt
     if (n == 0) return 0
     else if (n == 1) return 1
-    else fibo((n - 1).toString) + fibo((n - 2).toString)
+    else fibo(n - 1) + fibo(n - 2)
   }
 
-  def sortDecreasing(list: List[Int]) : List[Int] = {
+  def sortDecreasing(list: ArrayBuffer[Int]) : List[Int] = {
     list.sorted
-    return list.reverse
+    return list.toList.reverse
   }
 
-  def multiply (list: List[Int]) : Int = {
+  def multiply (list: ArrayBuffer[Int]) : Int = {
     var product = 1
     list.foreach(product *=_)
     return product

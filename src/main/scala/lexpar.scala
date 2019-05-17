@@ -1,4 +1,3 @@
-
 import java.io.{File, PrintWriter}
 import scala.collection.mutable.ArrayBuffer
 import scala.io._
@@ -59,10 +58,8 @@ class MyParser extends RegexParsers {
     | "void"
     | "tester"
     | "testAll"
-    | "sorted"
     | "negative"
     | "positive"
-    | "reverse"
     | "min"
     | "max")
   def bool: Parser[Bool] = ("true" | "false") ^^ { b => Bool(b) }

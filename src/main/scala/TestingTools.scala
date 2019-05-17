@@ -1,4 +1,6 @@
-class TestingTools {
+
+
+ class TestingTools {
 
   def rand_list(n : Int) = {
     val r = new scala.util.Random
@@ -27,4 +29,6 @@ class TestingTools {
   println("xNegative : " + xNegative)
   println("Does xNegative possess a positive number? : " + isPos(xNegative: _*))
   println("Does xNegative possess a negative number? : " + isNeg(xNegative: _*))
-}
+
+
+ }

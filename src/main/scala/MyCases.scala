@@ -8,8 +8,14 @@ class MyCases {
     sum
   }
 
-  def isTrue(c: Bool):Boolean = {
-     false
+  def isTrue(c: String):Boolean = {
+    var boo =false
+
+      if(c.toLowerCase()=="ru"){
+        boo = true
+      }
+    println("Testing "+boo+ " "+ c)
+      boo
   }
 
   /*def addInt(a : String, n : Int) : Unit = {
@@ -22,11 +28,22 @@ class MyCases {
      i
   }
 
-  def fibo(n: Int): Int = {
-    //val n : Int = s.toInt
-    if (n == 0) return 0
-    else if (n == 1) return 1
-    else fibo(n - 1) + fibo(n - 2)
+  def fibo(n: String): Int = {
+
+    //try {
+      val i =  n.toInt
+   // } catch {
+  //    case e: Exception => 0
+  //  }
+    if (i == 0) return 0
+    else if (i == 1) return 1
+    else fiboHelp(i - 1) + fiboHelp(i - 2)
+  }
+
+  def fiboHelp(i: Int): Int ={
+    if (i == 0) return 0
+    else if (i == 1) return 1
+    else fiboHelp(i - 1) + fiboHelp(i - 2)
   }
 
   def sortDecreasing(list: ArrayBuffer[Int]) : List[Int] = {

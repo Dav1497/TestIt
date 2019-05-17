@@ -360,20 +360,22 @@ class MyParser extends RegexParsers {
     }
 
 
-    case "testAll"  =>{
+    case "testAll" =>{
       val myClasssss = new MyCases
       val allMetd = myClasssss.getClass.getDeclaredMethods
 
       for (i <- allMetd){
 
         try{
-          if (i.getName != "$deserializeLambda$" && i.getName != "$anonfun$multiply$1") {
+
+          if (i.getName != "$deserializeLambda$" && i.getName != "$anonfun$multiply$1" && i.getName != "fiboHelp") {
             println("Method: " + i.getName)
             val m = i.getParameterTypes.mkString
            // println(m)
 
             println("Specify parameters: ")
             val x = StdIn.readLine()
+
 
             val ptr = paramMatch(m, x)
             usrInput(i.getName, ptr)

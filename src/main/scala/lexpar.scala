@@ -1,4 +1,3 @@
-
 import java.io.{File, PrintWriter}
 import scala.collection.mutable.ArrayBuffer
 import scala.io._
@@ -59,10 +58,8 @@ class MyParser extends RegexParsers {
     | "void"
     | "tester"
     | "testAll"
-    | "sorted"
     | "negative"
     | "positive"
-    | "reverse"
     | "min"
     | "max")
   def bool: Parser[Bool] = ("true" | "false") ^^ { b => Bool(b) }
@@ -126,7 +123,7 @@ class MyParser extends RegexParsers {
   //metodo para hacer files
   def createFile(name: String) = {
 
-    val completePath = name +".txt"
+    val completePath = "src/main/customTesters/"+ name +".txt"
     //val file = new File(completePath)
     //file.createNewFile();
     println(completePath)
@@ -232,7 +229,7 @@ class MyParser extends RegexParsers {
   def chkCondition(cnd: String, out: String): Boolean = {
     val arr = cnd.split(" ")
     if (arr(0) == "this") arr(0) = out
-    println("Value of arr(0): "+ arr(0))
+    //println("Value of arr(0): "+ arr(0))
     val op = arr(1) match {
       case "<=" => {
         if(arr(0).toInt <= (arr(2)).toInt) true
@@ -271,7 +268,7 @@ class MyParser extends RegexParsers {
     for(b <- a1){
       b.trim()
     }
-     a1.toList
+    a1.toList
 
     // val arr = (pattern findAllIn str).toList
     //return arr
@@ -288,7 +285,7 @@ class MyParser extends RegexParsers {
       val mtdname = id.toString.substring(3, id.toString.length - 1)
 
       if(term.toString.contains("List")){
-        println(term.toString)
+        //println(term.toString)
         if (term.toString.contains("Integer")){
           val param = getIntList(term.toString)
           usrInput(mtdname, param)
@@ -301,7 +298,7 @@ class MyParser extends RegexParsers {
       else{
         val param = getParam(term.toString)
 
-        println(param)
+        //println(param)
         val myClass = new MyCases
         var ptype = ""
         for(m <- myClass.getClass.getDeclaredMethods){
@@ -319,7 +316,7 @@ class MyParser extends RegexParsers {
 
     case "execute" ~ id ~ "(" ~ ")" => {
       val fileName = id.toString.substring(3, id.toString.length - 1)
-      val filesrc = Source.fromFile("src/main/scala/"+fileName + ".txt")
+      val filesrc = Source.fromFile("src/main/customTesters/"+fileName + ".txt")
       val fileContents = filesrc.getLines.toList
 
       val myClass = new MyCases
@@ -371,7 +368,7 @@ class MyParser extends RegexParsers {
           if (i.getName != "$deserializeLambda$" && i.getName != "$anonfun$multiply$1" && i.getName != "fiboHelp") {
             println("Method: " + i.getName)
             val m = i.getParameterTypes.mkString
-           // println(m)
+            // println(m)
 
             println("Specify parameters: ")
             val x = StdIn.readLine()

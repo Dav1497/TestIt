@@ -25,7 +25,7 @@ object my_main extends MyParser{
           parser.parseAll(parser.exp, cmmd)
         }
       } catch {
-        case e: Exception => println(e)
+        case e: Exception => println("Error with parsing")
       }
     }
     println("Thank you for TestingIt!")

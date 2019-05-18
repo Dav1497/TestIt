@@ -15,6 +15,7 @@ class MyCases {
   def fibo(n: String): Int = {
     val i =  n.toInt
 
+
     if (i == 0) return 0
     else if (i == 1) return 1
     else fiboHelp(i - 1) + fiboHelp(i - 2)
@@ -51,6 +52,26 @@ class MyCases {
 
   def upStr(s : String) : String = {
     return  s.toUpperCase
+  }
+
+  def isSorted(x : ArrayBuffer[Int]) :Boolean ={
+    val y = x.sorted
+    var boo = true
+    for(i <- 0 until x.length){
+      if(x(i).!=(y(i)))
+        boo = false
+    }
+    boo
+  }
+
+  def isReversed(x : ArrayBuffer[Int]) :Boolean ={
+    val y = x.reverse
+    var boo = true
+    for(i <- 0 until x.length){
+      if(x(i).!=(y(i)))
+        boo = false
+    }
+    boo
   }
 
   def isSorted(x : ArrayBuffer[Int]) :Boolean ={

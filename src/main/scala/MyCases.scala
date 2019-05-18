@@ -13,7 +13,8 @@ class MyCases {
   }
 
   def fibo(n: String): Int = {
-      val i =  n.toInt
+    val i =  n.toInt
+
 
     if (i == 0) return 0
     else if (i == 1) return 1
@@ -27,8 +28,7 @@ class MyCases {
   }
 
   def sortDecreasing(list: ArrayBuffer[Int]) : List[Int] = {
-    list.sorted
-    return list.toList.reverse
+    return list.sorted.reverse.toList
   }
 
   def multiply (list: ArrayBuffer[Int]) : Int = {
@@ -54,8 +54,14 @@ class MyCases {
     return  s.toUpperCase
   }
 
-  def isEmptyStr(s : String) : Boolean = {
-    return  s.isEmpty
+  def isSorted(x : ArrayBuffer[Int]) :Boolean ={
+    val y = x.sorted
+    var boo = true
+    for(i <- 0 until x.length){
+      if(x(i).!=(y(i)))
+        boo = false
+    }
+    boo
   }
 
   def isReversed(x : ArrayBuffer[Int]) :Boolean ={
